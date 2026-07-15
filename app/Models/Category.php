@@ -27,7 +27,7 @@ class Category extends Model
     }
 
     /**
-     * One-to-Many relationship with expenses
+     * Many-to-One relationship with expenses
      *
      * @return HasMany <p>
      *     One expense category can have many expenses
