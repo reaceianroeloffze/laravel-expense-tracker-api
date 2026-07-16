@@ -4,63 +4,48 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 
 class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(): JsonResponse
     {
         $categories = auth()->user()->categories()->get();
-        return view('categories.index', compact('categories'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): View
-    {
-        return view('categories.create');
+        return response()->json($categories);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'colour' => 'required|string|max:7',
         ]);
 
-        auth()->user()->categories()->create($validated);
+         $category = auth()->user()->categories()->create($validated);
 
-        return redirect()->route('categories.index');
+        return response()->json($category, 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Category $category): View
+    public function show(Category $category): JsonResponse
     {
-        return view('categories.show', compact('category'));
-    }
+        $this->authorize('view', $category);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Category $category): View
-    {
-        return view('categories.edit', compact('category'));
+        return response()->json($category);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Category $category): RedirectResponse
+    public function update(Request $request, Category $category): JsonResponse
     {
         $this->authorize('update', $category);
 
@@ -71,18 +56,18 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
-        return redirect()->route('categories.index');
+        return response()->json($category);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category): RedirectResponse
+    public function destroy(Category $category): JsonResponse
     {
         $this->authorize('delete', $category);
 
         $category->delete();
 
-        return redirect()->route('categories.index');
+        return response()->json(null, 204);
     }
 }
