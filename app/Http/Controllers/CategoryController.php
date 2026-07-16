@@ -62,12 +62,13 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category): RedirectResponse
     {
+        $this->authorize('update', $category);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'colour' => 'required|string|max:7',
         ]);
 
-        $category = auth()->user()->categories()->findOrFail($category->id);
         $category->update($validated);
 
         return redirect()->route('categories.index');
@@ -78,7 +79,8 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category): RedirectResponse
     {
-        $category = auth()->user()->categories()->findOrFail($category->id);
+        $this->authorize('delete', $category);
+
         $category->delete();
 
         return redirect()->route('categories.index');
